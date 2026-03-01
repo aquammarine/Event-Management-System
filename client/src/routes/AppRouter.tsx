@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from '../features/auth/Login';
 import Register from '../features/auth/Register';
 import EventList from '../features/events/EventList';
+import EventDetails from '../features/events/EventDetails';
+import CreateEvent from '../features/events/CreateEvent';
 import MyEvents from '../features/calendar/MyEvents';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -16,6 +18,8 @@ const AppRouter = () => {
                     <Route path="/" element={<Navigate to="/calendar" />} />
                     <Route path="/calendar" element={<MyEvents />} />
                     <Route path="/events" element={<EventList />} />
+                    <Route path="/events/create" element={<CreateEvent />} />
+                    <Route path="/events/:id" element={<EventDetails />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" />} />

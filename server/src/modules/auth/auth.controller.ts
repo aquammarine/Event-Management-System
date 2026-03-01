@@ -33,6 +33,6 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async refresh(@Req() req: express.Request) {
         const user = (req as any).user;
-        return this.authService.updateRefreshToken(user.id, user.refreshToken);
+        return this.authService.refreshTokens(user.id, user.refreshToken);
     }
 }

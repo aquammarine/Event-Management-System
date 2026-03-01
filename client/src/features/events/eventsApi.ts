@@ -1,0 +1,76 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
+
+const baseQuery = fetchBaseQuery({
+    baseUrl: 'http://localhost:3000',
+    prepareHeaders: (headers) => {
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            headers.set('authorization', `Bearer ${token}`);
+        }
+        return headers;
+    },
+});
+
+const baseQueryWithReauth: BaseQueryFn<
+    string | FetchArgs,
+    unknown,
+    FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+    let result = await baseQuery(args, api, extraOptions);
+
+    if (result.error && result.error.status === 401) {
+        // try to get a new token
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (refreshToken) {
+            const refreshResult: any = await baseQuery(
+                {
+                    url: '/auth/refresh',
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${refreshToken}` }
+                },
+                api,
+                extraOptions
+            );
+
+            if (refreshResult.data) {
+                // store the new tokens
+                const { access_token, refresh_token } = refreshResult.data;
+                localStorage.setItem('access_token', access_token);
+                localStorage.setItem('refresh_token', refresh_token);
+
+                // retry the initial query
+                result = await baseQuery(args, api, extraOptions);
+            } else {
+                // refresh failed - logout the user
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            }
+        }
+    }
+    return result;
+};
+
+export const eventsApi = createApi({
+    reducerPath: 'eventsApi',
+    baseQuery: baseQueryWithReauth,
+    tagTypes: ['Event'],
+    endpoints: (builder) => ({
+        createEvent: builder.mutation({
+            query: (newEvent) => ({
+                url: '/events',
+                method: 'POST',
+                body: newEvent,
+            }),
+            invalidatesTags: ['Event'],
+        }),
+        getEvents: builder.query({
+            query: () => '/events',
+            providesTags: ['Event'],
+        }),
+    }),
+});
+
+export const { useCreateEventMutation, useGetEventsQuery } = eventsApi;

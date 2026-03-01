@@ -105,4 +105,24 @@ export class AuthService {
             data: { refreshToken: hashedRefreshToken },
         });
     }
+
+    async refreshTokens(userId: string, rt: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user || !user.refreshToken) {
+            throw new BadRequestException('Access Denied');
+        }
+
+        const rtMatches = await bcrypt.compare(rt, user.refreshToken);
+        if (!rtMatches) {
+            throw new BadRequestException('Access Denied');
+        }
+
+        const tokens = await this.getTokens(user.id, user.email);
+        await this.updateRefreshToken(user.id, tokens.refresh_token);
+
+        return tokens;
+    }
 }

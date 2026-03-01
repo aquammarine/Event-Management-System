@@ -21,12 +21,12 @@ const Button: React.FC<ButtonProps> = ({
     disabled,
     ...props
 }) => {
-    const baseStyles = 'inline-flex items-center justify-center gap-2.5 font-bold rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed py-4 px-6';
+    const baseStyles = 'inline-flex items-center justify-center gap-2.5 font-bold rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed py-3 px-6';
 
     const variants = {
-        primary: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-100',
+        primary: 'bg-[#6366f1] hover:bg-[#4f46e5] text-white',
         secondary: 'bg-slate-100 hover:bg-slate-200 text-slate-900',
-        outline: 'bg-transparent border border-slate-200 hover:border-indigo-600 hover:text-indigo-600 text-slate-700',
+        outline: 'bg-white border border-slate-200 hover:border-slate-300 text-slate-700 font-bold',
         ghost: 'bg-transparent hover:bg-slate-50 text-slate-600',
     };
 
