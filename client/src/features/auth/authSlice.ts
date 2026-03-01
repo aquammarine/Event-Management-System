@@ -65,7 +65,7 @@ const authSlice = createSlice({
             })
             .addCase(login.fulfilled, (state, action: PayloadAction<any>) => {
                 state.isLoading = false;
-                state.user = action.payload.user || { email: 'user@example.com' }; // Fallback for testing
+                state.user = action.payload.user;
                 state.accessToken = action.payload.access_token;
                 localStorage.setItem('access_token', action.payload.access_token);
                 localStorage.setItem('refresh_token', action.payload.refresh_token);

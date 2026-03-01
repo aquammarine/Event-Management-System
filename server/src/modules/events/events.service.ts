@@ -17,19 +17,114 @@ export class EventsService {
     });
   }
 
-  findAll() {
-    return `This action returns all events`;
+  async findAllPublic(userId?: string) {
+    const events = await this.prisma.event.findMany({
+      where: { isPublic: true },
+      include: {
+        _count: {
+          select: { participants: true },
+        },
+        participants: userId ? {
+          where: { userId },
+        } : false,
+      },
+      orderBy: { dateTime: 'asc' },
+    });
+
+    return events.map((event) => ({
+      ...event,
+      participantCount: event._count.participants,
+      isJoined: event.participants?.length > 0,
+      isFull: event.capacity ? event._count.participants >= event.capacity : false,
+    }));
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} event`;
+  async findOne(id: string, userId?: string) {
+    const event = await this.prisma.event.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: { participants: true },
+        },
+        participants: userId ? {
+          where: { userId },
+        } : false,
+        organizer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (!event) return null;
+
+    return {
+      ...event,
+      participantCount: event._count.participants,
+      isJoined: event.participants?.length > 0,
+      isFull: event.capacity ? event._count.participants >= event.capacity : false,
+    };
   }
 
-  update(id: number, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
+  async join(eventId: string, userId: string) {
+    const event = await this.prisma.event.findUnique({
+      where: { id: eventId },
+      include: {
+        _count: {
+          select: { participants: true },
+        },
+      },
+    });
+
+    if (!event) throw new Error('Event not found');
+    if (event.capacity && event._count.participants >= event.capacity) {
+      throw new Error('Event is full');
+    }
+
+    return this.prisma.participant.create({
+      data: {
+        eventId,
+        userId,
+      },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} event`;
+  async leave(eventId: string, userId: string) {
+    return this.prisma.participant.delete({
+      where: {
+        userId_eventId: {
+          userId,
+          eventId,
+        },
+      },
+    });
+  }
+
+  async update(id: string, updateEventDto: UpdateEventDto, organizerId: string) {
+    const event = await this.prisma.event.findUnique({ where: { id } });
+    if (!event || event.organizerId !== organizerId) {
+      throw new Error('Not authorized to update this event');
+    }
+
+    return this.prisma.event.update({
+      where: { id },
+      data: {
+        ...updateEventDto,
+        dateTime: updateEventDto.dateTime ? new Date(updateEventDto.dateTime) : undefined,
+      },
+    });
+  }
+
+  async remove(id: string, organizerId: string) {
+    const event = await this.prisma.event.findUnique({ where: { id } });
+    if (!event || event.organizerId !== organizerId) {
+      throw new Error('Not authorized to delete this event');
+    }
+
+    return this.prisma.event.delete({ where: { id } });
   }
 }

@@ -7,32 +7,46 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { User } from '@prisma/client';
 
 @Controller('events')
-@UseGuards(JwtAuthGuard)
 export class EventsController {
   constructor(private readonly eventsService: EventsService) { }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   create(@Body() createEventDto: CreateEventDto, @CurrentUser() user: User) {
     return this.eventsService.create(createEventDto, user.id);
   }
 
-  @Get()
-  findAll() {
-    return this.eventsService.findAll();
+  @Get('public')
+  findAllPublic(@CurrentUser() user?: User) {
+    return this.eventsService.findAllPublic(user?.id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.eventsService.findOne(+id);
+  findOne(@Param('id') id: string, @CurrentUser() user?: User) {
+    return this.eventsService.findOne(id, user?.id);
+  }
+
+  @Post(':id/join')
+  @UseGuards(JwtAuthGuard)
+  join(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.eventsService.join(id, user.id);
+  }
+
+  @Post(':id/leave')
+  @UseGuards(JwtAuthGuard)
+  leave(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.eventsService.leave(id, user.id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventsService.update(+id, updateEventDto);
+  @UseGuards(JwtAuthGuard)
+  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto, @CurrentUser() user: User) {
+    return this.eventsService.update(id, updateEventDto, user.id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.eventsService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  remove(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.eventsService.remove(id, user.id);
   }
 }

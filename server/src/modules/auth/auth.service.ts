@@ -29,7 +29,15 @@ export class AuthService {
         const tokens = await this.getTokens(user.id, user.email);
         await this.updateRefreshToken(user.id, tokens.refresh_token);
 
-        return tokens;
+        return {
+            user: {
+                id: user.id,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+            },
+            ...tokens,
+        };
     }
 
     async register(dto: RegisterDto) {

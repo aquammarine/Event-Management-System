@@ -66,11 +66,35 @@ export const eventsApi = createApi({
             }),
             invalidatesTags: ['Event'],
         }),
-        getEvents: builder.query({
-            query: () => '/events',
+        getPublicEvents: builder.query<any, void>({
+            query: () => '/events/public',
             providesTags: ['Event'],
+        }),
+        getEventById: builder.query({
+            query: (id) => `/events/${id}`,
+            providesTags: (_result, _error, id) => [{ type: 'Event', id }],
+        }),
+        joinEvent: builder.mutation({
+            query: (id) => ({
+                url: `/events/${id}/join`,
+                method: 'POST',
+            }),
+            invalidatesTags: (_result, _error, id) => ['Event', { type: 'Event', id }],
+        }),
+        leaveEvent: builder.mutation({
+            query: (id) => ({
+                url: `/events/${id}/leave`,
+                method: 'POST',
+            }),
+            invalidatesTags: (_result, _error, id) => ['Event', { type: 'Event', id }],
         }),
     }),
 });
 
-export const { useCreateEventMutation, useGetEventsQuery } = eventsApi;
+export const {
+    useCreateEventMutation,
+    useGetPublicEventsQuery,
+    useGetEventByIdQuery,
+    useJoinEventMutation,
+    useLeaveEventMutation
+} = eventsApi;
