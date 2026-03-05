@@ -1,40 +1,23 @@
-import { Button, Input, Card } from "../../components/common/index";
+import { Button, Card, FormField } from "../../components/common/index";
 import { AuthRedirect } from "../../components/AuthRedirect/index";
-import { useLogin } from "../../hooks/useLogin";
-import { useState } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
-import { loginSchema, type LoginFormData } from "./login.schema";
-import type { ZodError } from "zod";
+import { useAuthStore } from "../../stores/auth.store";
+
+import { useLoginForm } from "../../hooks/useLoginForm";
 
 const Login: React.FC = () => {
-    const { handleLogin, loading } = useLogin();
+    const { isLoading, user } = useAuthStore();
+    const navigate = useNavigate();
 
-    const [form, setForm] = useState<LoginFormData>({
-        email: '',
-        password: '',
-    });
+    const { form, setForm, fieldErrors, handleSubmit } = useLoginForm();
 
-    const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof LoginFormData, string>>>({});
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setFieldErrors({});
-
-        try {
-            const validated = loginSchema.parse(form);
-            await handleLogin(validated);
-        } catch (err) {
-            const zodError = err as ZodError;
-            if (zodError.issues) {
-                const errors: Partial<Record<keyof LoginFormData, string>> = {};
-                zodError.issues.forEach((e) => {
-                    const field = e.path[0] as keyof LoginFormData;
-                    if (!errors[field]) errors[field] = e.message;
-                });
-                setFieldErrors(errors);
-            }
+    useEffect(() => {
+        if (user) {
+            navigate('/events', { replace: true });
         }
-    };
+    }, [user, navigate]);
 
     return (
         <form
@@ -43,8 +26,10 @@ const Login: React.FC = () => {
         >
             <Card className="w-full max-w-md p-10 flex flex-col gap-5">
                 <h1 className="text-2xl font-bold text-center">Login</h1>
+
                 <div className="gap-5 flex flex-col">
-                    <Input
+                    <FormField
+                        id="email"
                         icon={Mail}
                         value={form.email}
                         onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -53,7 +38,8 @@ const Login: React.FC = () => {
                         placeholder="Enter your email"
                         error={fieldErrors.email}
                     />
-                    <Input
+                    <FormField
+                        id="password"
                         icon={Lock}
                         value={form.password}
                         onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -63,7 +49,7 @@ const Login: React.FC = () => {
                         error={fieldErrors.password}
                     />
                 </div>
-                <Button disabled={loading} variant="primary" className="py-3">Login</Button>
+                <Button disabled={isLoading} variant="primary" className="py-3">Login</Button>
                 <AuthRedirect action="Sign Up" actionLink="/register">Don't have an account?</AuthRedirect>
             </Card>
         </form>

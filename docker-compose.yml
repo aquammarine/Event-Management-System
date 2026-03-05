@@ -1,5 +1,4 @@
 services:
-  # Database
   db:
     image: postgres:15-alpine
     container_name: event_db
@@ -16,7 +15,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Backend (NestJS)
   backend:
     build:
       context: ./server
@@ -31,9 +29,8 @@ services:
         condition: service_healthy
     volumes:
       - ./server:/app
-      - /app/node_modules # Ізолюємо node_modules контейнера
+      - /app/node_modules
 
-  # Frontend (Vite)
   frontend:
     build:
       context: ./client
@@ -42,12 +39,12 @@ services:
     container_name: event_frontend
     restart: unless-stopped
     ports:
-      - "5173:5173" # Для dev-режиму прокидаємо порт Vite
+      - "5173:5173"
     depends_on:
       - backend
     volumes:
       - ./client:/app
-      - /app/node_modules # Ізолюємо node_modules контейнера
+      - /app/node_modules
 
 volumes:
   postgres_data:

@@ -19,7 +19,8 @@ export interface LoginCredentials {
 export interface RegisterPayload {
     email: string;
     password: string;
-    name: string;
+    firstName: string;
+    lastName: string;
 }
 
 export type LoginData = {

@@ -17,8 +17,26 @@ export class AuthController {
     @ApiOperation({ summary: 'Register a new user' })
     @ApiResponse({ status: 201, description: 'User successfully registered.' })
     @ApiResponse({ status: 409, description: 'Email already exists.' })
-    async register(@Body() dto: RegisterDto) {
-        return await this.authService.register(dto);
+    async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: express.Response) {
+        const { user, access_token, refresh_token } = await this.authService.register(dto);
+
+        res.cookie('access_token', access_token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            maxAge: ONE_MINUTE * 15,
+        })
+
+        res.cookie('refresh_token', refresh_token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            maxAge: ONE_WEEK,
+        });
+        return {
+            message: 'Register successful',
+            user,
+        };
     }
 
     @Post('login')
@@ -103,8 +121,8 @@ export class AuthController {
     @ApiOperation({ summary: 'Get current user' })
     @ApiResponse({ status: 200, description: 'User successfully fetched.' })
     async getUser(@Req() req: express.Request) {
-        const user = (req as any).user;
+        const user = (req as express.Request).user;
 
-        return user;
+        return { user };
     }
 }

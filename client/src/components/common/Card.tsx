@@ -6,7 +6,7 @@ interface CardProps {
 }
 
 const Card: React.FC<CardProps> = ({ children, className = '' }) => {
-    const baseStyles = "bg-white rounded-xl shadow-sm border border-slate-200/60";
+    const baseStyles = "bg-white rounded-xl shadow-sm border border-slate-200/60 flex flex-wrap";
     return (
         <div className={`${baseStyles} ${className}`}>
             {children}

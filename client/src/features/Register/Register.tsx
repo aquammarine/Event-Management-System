@@ -1,47 +1,23 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { Mail, Lock, User } from "lucide-react";
-import { Button, Input, Card } from "../../components/common/index";
+import { Button, Card, FormField } from "../../components/common/index";
 import { AuthRedirect } from "../../components/AuthRedirect/index";
-import { useRegister } from "../../hooks/useRegister";
-import { registerSchema, type RegisterFormData } from "./register.schema";
-import type { ZodError } from "zod";
+import { useAuthStore } from "../../stores/auth.store";
+import { useNavigate } from "react-router-dom";
+
+import { useRegisterForm } from "../../hooks/useRegisterForm";
 
 const Register: React.FC = () => {
-    const { register, loading } = useRegister();
+    const { isLoading, user } = useAuthStore();
+    const navigate = useNavigate();
 
-    const [form, setForm] = useState<RegisterFormData>({
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-    });
+    const { form, setForm, fieldErrors, handleSubmit } = useRegisterForm();
 
-    const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof RegisterFormData, string>>>({});
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setFieldErrors({});
-
-        try {
-            const validated = registerSchema.parse(form);
-            await register({
-                name: `${validated.firstName} ${validated.lastName}`,
-                email: validated.email,
-                password: validated.password,
-            });
-        } catch (err) {
-            const zodError = err as ZodError;
-            if (zodError.issues) {
-                const errors: Partial<Record<keyof RegisterFormData, string>> = {};
-                zodError.issues.forEach((e) => {
-                    const field = e.path[0] as keyof RegisterFormData;
-                    if (!errors[field]) errors[field] = e.message;
-                });
-                setFieldErrors(errors);
-            }
+    useEffect(() => {
+        if (user) {
+            navigate('/events', { replace: true });
         }
-    };
+    }, [user, navigate]);
 
     return (
         <form
@@ -55,7 +31,8 @@ const Register: React.FC = () => {
                 </div>
                 <div className="flex flex-col gap-3">
                     <div className="flex gap-3">
-                        <Input
+                        <FormField
+                            id="firstName"
                             icon={User}
                             value={form.firstName}
                             onChange={(e) => setForm({ ...form, firstName: e.target.value })}
@@ -64,7 +41,8 @@ const Register: React.FC = () => {
                             placeholder="First Name"
                             error={fieldErrors.firstName}
                         />
-                        <Input
+                        <FormField
+                            id="lastName"
                             icon={User}
                             value={form.lastName}
                             onChange={(e) => setForm({ ...form, lastName: e.target.value })}
@@ -74,7 +52,8 @@ const Register: React.FC = () => {
                             error={fieldErrors.lastName}
                         />
                     </div>
-                    <Input
+                    <FormField
+                        id="email"
                         icon={Mail}
                         value={form.email}
                         onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -83,7 +62,8 @@ const Register: React.FC = () => {
                         placeholder="Enter your email"
                         error={fieldErrors.email}
                     />
-                    <Input
+                    <FormField
+                        id="password"
                         icon={Lock}
                         value={form.password}
                         onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -92,7 +72,8 @@ const Register: React.FC = () => {
                         placeholder="Enter your password"
                         error={fieldErrors.password}
                     />
-                    <Input
+                    <FormField
+                        id="confirmPassword"
                         icon={Lock}
                         value={form.confirmPassword}
                         onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
@@ -102,7 +83,7 @@ const Register: React.FC = () => {
                         error={fieldErrors.confirmPassword}
                     />
                 </div>
-                <Button disabled={loading} variant="primary" className="py-3">Register</Button>
+                <Button disabled={isLoading} variant="primary" className="py-3">Register</Button>
                 <AuthRedirect action="Login" actionLink="/login">Already have an account?</AuthRedirect>
             </Card>
         </form>
