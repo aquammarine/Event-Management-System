@@ -2,9 +2,10 @@ import React from 'react';
 import { Label } from './Label';
 import { Input } from './Input';
 import type { InputProps } from './Input';
+import { Error } from './Error';
 
 export interface FormFieldProps extends InputProps {
-    id: string; // Ensure id is required for accessibility (htmlFor in label)
+    id: string;
 }
 
 const FormField: React.FC<FormFieldProps> = ({ label, required, error, id, className, ...inputProps }) => {
@@ -14,7 +15,7 @@ const FormField: React.FC<FormFieldProps> = ({ label, required, error, id, class
                 <Label text={label} required={required} htmlFor={id} />
             )}
             <Input id={id} required={required} {...inputProps} />
-            {error && <p className="text-xs text-red-500 font-bold ml-1">{error}</p>}
+            {error && <Error message={error} />}
         </div>
     );
 };
