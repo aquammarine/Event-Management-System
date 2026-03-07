@@ -25,32 +25,33 @@ const WeekDayCard: React.FC<WeekDayCardProps> = ({ day, selectedDate, events, on
     return (
         <Card
             onClick={() => onDayClick(day)}
-            className={`flex-col p-5 cursor-pointer group ${today
-                ? 'border-indigo-500 border-2'
-                : 'border-slate-100'
-                }`}
+            className={`flex-col p-4 cursor-pointer group transition-all duration-300 ${today
+                ? 'border-[#6366f1] border-2 shadow-sm shadow-indigo-100'
+                : 'border-slate-100 hover:border-slate-200'
+                } bg-white rounded-2xl`}
         >
-            <div className="mb-6 shrink-0">
-                <p className="font-bold text-[14px] mb-1 text-slate-800">
+            <div className="mb-4 shrink-0 px-1">
+                <p className="font-extrabold text-[13px] mb-1 text-slate-900">
                     {format(day, 'EEE')}
                 </p>
-                <p className={`text-[28px] font-black leading-none transition-all duration-300 ${isSelected ? 'text-[#6366f1]' : 'text-slate-800'
+                <p className={`text-[15px] font-bold leading-none transition-colors duration-300 ${isSelected ? 'text-[#6366f1]' : 'text-slate-400'
                     } group-hover:text-indigo-600`}>
                     {format(day, 'd')}
                 </p>
             </div>
 
-            <div className="flex flex-col gap-3 w-full">
+            <div className="flex flex-col gap-2 w-full mt-2">
                 {events.length > 0 ? (
                     events.map((event) => (
                         <CalendarEventPill
                             key={event.id}
                             event={event}
+                            variant="block"
                             onClick={() => onEventClick(event.id)}
                         />
                     ))
                 ) : (
-                    <InfoItem text="No events" className="text-slate-400 font-bold text-[14px]" />
+                    <InfoItem text="" className="hidden" />
                 )}
             </div>
         </Card>

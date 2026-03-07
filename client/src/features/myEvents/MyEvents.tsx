@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
 import type { View } from 'react-big-calendar';
 import {
@@ -41,11 +41,15 @@ const localizer = dateFnsLocalizer({
 
 const MyEvents: React.FC = () => {
     const navigate = useNavigate();
-    const { events, isLoading } = useEventsStore();
+    const { myEvents, fetchMyEvents, isLoading } = useEventsStore();
     const [view, setView] = useState<View>(Views.WEEK);
     const [date, setDate] = useState(new Date());
 
-    const calendarEvents = events.map((event: any) => ({
+    useEffect(() => {
+        fetchMyEvents();
+    }, [fetchMyEvents]);
+
+    const calendarEvents = myEvents.map((event: any) => ({
         id: event.id,
         title: event.title,
         start: new Date(event.dateTime),
@@ -75,7 +79,7 @@ const MyEvents: React.FC = () => {
         );
     }
 
-    if (events.length === 0) {
+    if (myEvents.length === 0) {
         return (
             <MyEventsEmpty />
         );
@@ -113,13 +117,10 @@ const MyEvents: React.FC = () => {
                         toolbar={false}
                         eventPropGetter={() => ({
                             style: {
-                                backgroundColor: '#f2f2ff',
+                                backgroundColor: 'transparent',
                                 border: 'none',
-                                color: '#4f46e5',
-                                borderRadius: '8px',
-                                padding: '4px 10px',
-                                fontSize: '13px',
-                                fontWeight: '700'
+                                padding: '0',
+                                margin: '2px 8px',
                             }
                         })}
                         formats={{

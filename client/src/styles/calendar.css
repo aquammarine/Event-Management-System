@@ -73,10 +73,11 @@
 
 /* ── Event pills — light indigo bg matching the screenshot ── */
 .rbc-wrapper .rbc-event {
-    background-color: #eef2ff !important;
+    background-color: transparent !important;
     border: none !important;
-    border-radius: 4px !important;
-    padding: 2px 4px !important;
+    padding: 0 !important;
+    margin: 2px 8px !important;
+    width: auto !important;
     box-shadow: none !important;
 }
 
