@@ -8,3 +8,4 @@ export { Header } from './Header';
 export { FormField } from './FormField';
 export { Label } from './Label';
 export { InfoItem } from './InfoItem';
+export { Modal } from './Modal';

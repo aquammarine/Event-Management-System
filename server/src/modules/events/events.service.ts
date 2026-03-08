@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -44,6 +44,14 @@ export class EventsService {
         participants: userId ? {
           where: { userId },
         } : false,
+        organizer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
       },
       orderBy: { dateTime: 'asc' },
     });
@@ -62,9 +70,17 @@ export class EventsService {
         _count: {
           select: { participants: true },
         },
-        participants: userId ? {
-          where: { userId },
-        } : false,
+        participants: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
         organizer: {
           select: {
             id: true,
@@ -122,7 +138,7 @@ export class EventsService {
   async update(id: string, updateEventDto: UpdateEventDto, organizerId: string) {
     const event = await this.prisma.event.findUnique({ where: { id } });
     if (!event || event.organizerId !== organizerId) {
-      throw new Error('Not authorized to update this event');
+      throw new ForbiddenException('Not authorized to update this event');
     }
 
     return this.prisma.event.update({
@@ -137,7 +153,7 @@ export class EventsService {
   async remove(id: string, organizerId: string) {
     const event = await this.prisma.event.findUnique({ where: { id } });
     if (!event || event.organizerId !== organizerId) {
-      throw new Error('Not authorized to delete this event');
+      throw new ForbiddenException('Not authorized to delete this event');
     }
 
     return this.prisma.event.delete({ where: { id } });

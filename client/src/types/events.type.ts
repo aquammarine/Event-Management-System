@@ -11,6 +11,7 @@ export interface UpdateEventDto extends Partial<CreateEventDto> { }
 
 export interface Event {
     id: string;
+    organizerId: string;
     title: string;
     description: string;
     dateTime: string;
@@ -23,7 +24,13 @@ export interface Event {
         lastName: string;
         email: string;
     };
-    participants?: any[];
+    participants?: {
+        user: {
+            id: string;
+            firstName: string;
+            lastName: string;
+        };
+    }[];
     _count?: {
         participants: number;
     };

@@ -14,13 +14,16 @@ interface EventCardProps {
     location: string;
     participants: number;
     capacity: number;
+    organizerId: string;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ id, title, description, date, time, location, participants, capacity }) => {
+const EventCard: React.FC<EventCardProps> = ({ id, title, description, date, time, location, participants, capacity, organizerId }) => {
     const { handleJoin, handleLeave, isPending } = useJoinEvent();
     const { myEvents } = useEventsStore();
     const { user } = useAuthStore();
     const navigate = useNavigate();
+
+    const isOrganizer = user?.id === organizerId;
 
     const handleCardClick = () => {
         navigate(`/events/${id}`);
@@ -44,7 +47,18 @@ const EventCard: React.FC<EventCardProps> = ({ id, title, description, date, tim
 
             <hr className="border-slate-100" />
 
-            {myEvents.some(e => e.id === id) ? (
+            {isOrganizer ? (
+                <Button
+                    variant="primary"
+                    className="w-full"
+                    onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        navigate(`/events/${id}`);
+                    }}
+                >
+                    Manage Event
+                </Button>
+            ) : myEvents.some(e => e.id === id) ? (
                 <Button
                     variant="danger"
                     onClick={(e: React.MouseEvent) => {

@@ -13,8 +13,6 @@ const EventList: React.FC<EventListProps> = ({ searchQuery = "" }) => {
         fetchPublicEvents();
     }, [fetchPublicEvents]);
 
-    console.log(events);
-
     const filteredEvents = events.filter(event =>
         event.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -69,6 +67,7 @@ const EventList: React.FC<EventListProps> = ({ searchQuery = "" }) => {
                     location={event.location}
                     participants={event._count?.participants || 0}
                     capacity={event.capacity || 0}
+                    organizerId={event.organizerId}
                 />
             ))}
         </div>
