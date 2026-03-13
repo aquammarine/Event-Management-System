@@ -38,3 +38,13 @@ export interface Event {
         participants: number;
     };
 }
+
+export interface EventFormFieldValues {
+    title: string;
+    description: string;
+    date: string;
+    time: string;
+    location: string;
+    capacity: string;
+    isPublic: boolean;
+}

@@ -78,12 +78,6 @@ export function TagsMultiSelect({ value, onChange, disabled }: TagsMultiSelectPr
           })}
         </div>
       )}
-
-      {isMaxReached && (
-        <p className="mt-1 text-xs text-amber-600 font-medium italic">
-          Maximum 5 tags reached
-        </p>
-      )}
     </div>
   );
 }

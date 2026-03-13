@@ -2,27 +2,18 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEventsStore } from '../stores/events.store';
 import { createEventSchema } from '../features/CreateEvent/createEvent.schema';
-import { eventsApi } from '../api/eventsApi'; // ADDED
-import { tagsApi } from '../api/tags'; // ADDED
+import { eventsApi } from '../api/eventsApi';
+import { tagsApi } from '../api/tags';
+import type { EventFormFieldValues } from '../types/events.type';
 import type { ZodError } from 'zod';
 
-interface CreateEventForm {
-    title: string;
-    description: string;
-    date: string;
-    time: string;
-    location: string;
-    capacity: string;
-    isPublic: boolean;
-}
-
-type FormFieldKeys = keyof CreateEventForm;
+type FormFieldKeys = keyof EventFormFieldValues;
 
 export const useCreateEventForm = () => {
-    const { fetchPublicEvents } = useEventsStore(); // CHANGED: removed createEvent, added fetchPublicEvents
+    const { fetchPublicEvents } = useEventsStore();
     const navigate = useNavigate();
 
-    const [form, setForm] = useState<CreateEventForm>({
+    const [form, setForm] = useState<EventFormFieldValues>({
         title: '',
         description: '',
         date: '',
@@ -34,8 +25,7 @@ export const useCreateEventForm = () => {
 
     const [fieldErrors, setFieldErrors] = useState<Partial<Record<FormFieldKeys, string>>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    
-    // ADDED: Tags state and local error state
+
     const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
     const [tagsError, setTagsError] = useState<string | null>(null);
 
@@ -53,7 +43,6 @@ export const useCreateEventForm = () => {
 
             setIsSubmitting(true);
 
-            // Step 1: create the event
             const newEvent = await eventsApi.create({
                 title: validated.title,
                 description: validated.description,
@@ -63,16 +52,13 @@ export const useCreateEventForm = () => {
                 isPublic: validated.isPublic,
             });
 
-            // Step 2: if tags were selected, attach them
             if (selectedTagIds.length > 0) {
                 try {
                     await tagsApi.updateEventTags(newEvent.id, selectedTagIds);
                 } catch (tagErr) {
                     console.error("Failed to update tags:", tagErr);
                     setTagsError("Event created but tags could not be saved. You can edit tags later.");
-                    // Refresh store anyway since event was created
                     await fetchPublicEvents();
-                    // Still navigate after a short delay so user sees the error
                     setTimeout(() => {
                         navigate('/events/' + newEvent.id);
                     }, 3000);
@@ -80,7 +66,6 @@ export const useCreateEventForm = () => {
                 }
             }
 
-            // Step 3: Refresh store and navigate
             await fetchPublicEvents();
             navigate('/events/' + newEvent.id);
         } catch (err: any) {

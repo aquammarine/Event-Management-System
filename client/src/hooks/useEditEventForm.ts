@@ -2,26 +2,17 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEventsStore } from '../stores/events.store';
 import { editEventSchema } from '../features/EditEvent/editEvent.schema';
-import { tagsApi } from '../api/tags'; // ADDED
+import { tagsApi } from '../api/tags';
+import type { EventFormFieldValues } from '../types/events.type';
 import type { ZodError } from 'zod';
 
-interface EditEventForm {
-    title: string;
-    description: string;
-    date: string;
-    time: string;
-    location: string;
-    capacity: string;
-    isPublic: boolean;
-}
-
-type FormFieldKeys = keyof EditEventForm;
+type FormFieldKeys = keyof EventFormFieldValues;
 
 export const useEditEventForm = (id: string | undefined) => {
     const { currentEvent, fetchEventById, updateEvent } = useEventsStore();
     const navigate = useNavigate();
 
-    const [form, setForm] = useState<EditEventForm>({
+    const [form, setForm] = useState<EventFormFieldValues>({
         title: '',
         description: '',
         date: '',
@@ -35,7 +26,6 @@ export const useEditEventForm = (id: string | undefined) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
-    // ADDED: Tags state and local error state
     const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
     const [tagsError, setTagsError] = useState<string | null>(null);
 
@@ -62,7 +52,6 @@ export const useEditEventForm = (id: string | undefined) => {
                 isPublic: currentEvent.isPublic,
             });
 
-            // ADDED: Initialize tags from event
             if (currentEvent.tags) {
                 setSelectedTagIds(currentEvent.tags.map((et: { tagId: string }) => et.tagId));
             }
@@ -84,7 +73,6 @@ export const useEditEventForm = (id: string | undefined) => {
 
             setIsSubmitting(true);
 
-            // Step 1: Update event fields
             await updateEvent(id, {
                 title: validated.title,
                 description: validated.description,
@@ -94,20 +82,17 @@ export const useEditEventForm = (id: string | undefined) => {
                 isPublic: validated.isPublic,
             });
 
-            // Step 2: Always update tags (even if empty — this clears tags if user removed all)
             try {
                 await tagsApi.updateEventTags(id, selectedTagIds);
             } catch (tagErr) {
                 console.error("Failed to update tags:", tagErr);
                 setTagsError("Changes saved but tags could not be updated.");
-                // Still navigate after a short delay so user sees the error
                 setTimeout(() => {
                     navigate('/events/' + id);
                 }, 3000);
                 return;
             }
 
-            // Step 3: Navigate
             navigate('/events/' + id);
         } catch (err: any) {
             if (err?.name === 'ZodError') {
