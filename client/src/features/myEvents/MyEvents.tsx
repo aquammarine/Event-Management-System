@@ -26,6 +26,9 @@ import { Header } from '../../components/common';
 import { CalendarToolbar } from '../../components/CalendarToolbar';
 import { MyEventsEmpty } from '../../components/MyEventsEmpty';
 import { CalendarEventPill } from '../../components/CalendarEventPill';
+import { useAuthStore } from '../../stores/auth.store';
+import type { Event } from '../../types/events.type';
+
 
 const locales = {
     'en-US': enUS,
@@ -39,8 +42,18 @@ const localizer = dateFnsLocalizer({
     locales,
 });
 
+function getEventColor(event: Event, isOrganizer: boolean): string {
+    // First tag's color (position 1/index 0)
+    if (event.tags && event.tags.length > 0 && event.tags[0].tag.colorHex) {
+        return event.tags[0].tag.colorHex;
+    }
+    // Fallback: blue for organized, purple for attending
+    return isOrganizer ? '#1D4ED8' : '#7C3AED';
+}
+
 const MyEvents: React.FC = () => {
     const navigate = useNavigate();
+    const { user: currentUser } = useAuthStore();
     const { myEvents, fetchMyEvents, isLoading } = useEventsStore();
     const [view, setView] = useState<View>(Views.WEEK);
     const [date, setDate] = useState(new Date());
@@ -49,13 +62,16 @@ const MyEvents: React.FC = () => {
         fetchMyEvents();
     }, [fetchMyEvents]);
 
-    const calendarEvents = myEvents.map((event: any) => ({
+    const calendarEvents = myEvents.map((event: Event) => ({
         id: event.id,
         title: event.title,
         start: new Date(event.dateTime),
         end: new Date(new Date(event.dateTime).getTime() + 60 * 60 * 1000),
         allDay: false,
+        resource: event,
+        color: getEventColor(event, event.organizerId === currentUser?.id),
     }));
+
 
     const handleSelectEvent = (event: any) => {
         navigate(`/events/${event.id}`);
@@ -115,14 +131,19 @@ const MyEvents: React.FC = () => {
                         view={Views.MONTH}
                         date={date}
                         toolbar={false}
-                        eventPropGetter={() => ({
-                            style: {
-                                backgroundColor: 'transparent',
-                                border: 'none',
-                                padding: '0',
-                                margin: '2px 8px',
-                            }
-                        })}
+                        eventPropGetter={(calEvent) => {
+                            const color = getEventColor(calEvent.resource, calEvent.resource.organizerId === currentUser?.id);
+                            return {
+                                style: {
+                                    backgroundColor: color,
+                                    borderRadius: '4px',
+                                    border: 'none',
+                                    color: '#fff',
+                                    fontSize: '12px',
+                                    padding: '2px 6px',
+                                }
+                            };
+                        }}
                         formats={{
                             dateFormat: 'd',
                         }}

@@ -4,6 +4,8 @@ import { useJoinEvent } from "../../hooks/useJoinEvent";
 import { useAuthStore } from "../../stores/auth.store";
 import { useNavigate } from "react-router-dom";
 import { useEventsStore } from "../../stores/events.store";
+import { EventTagList } from "./EventTagList";
+import type { EventTag } from "../../types/tag";
 
 interface EventCardProps {
     id: string;
@@ -15,9 +17,23 @@ interface EventCardProps {
     participants: number;
     capacity: number;
     organizerId: string;
+    tags?: EventTag[];
+    onTagClick?: (tagId: string) => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ id, title, description, date, time, location, participants, capacity, organizerId }) => {
+const EventCard: React.FC<EventCardProps> = ({
+    id,
+    title,
+    description,
+    date,
+    time,
+    location,
+    participants,
+    capacity,
+    organizerId,
+    tags,
+    onTagClick
+}) => {
     const { handleJoin, handleLeave, isPending } = useJoinEvent();
     const { myEvents } = useEventsStore();
     const { user } = useAuthStore();
@@ -45,7 +61,9 @@ const EventCard: React.FC<EventCardProps> = ({ id, title, description, date, tim
                 <InfoItem icon={Users} text={`${participants} / ${capacity > 0 ? capacity : 'Unlimited'} participants`} />
             </div>
 
-            <hr className="border-slate-200/60" />
+            <EventTagList tags={tags} onTagClick={onTagClick} />
+
+            <hr className="border-slate-200/60 mt-auto" />
 
             {isOrganizer ? (
                 <Button

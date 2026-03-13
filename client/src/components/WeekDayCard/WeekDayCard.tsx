@@ -8,6 +8,7 @@ interface WeekDayCardEvent {
     id: string;
     title: string;
     start: Date;
+    color?: string;
 }
 
 interface WeekDayCardProps {

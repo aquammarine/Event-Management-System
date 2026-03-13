@@ -4,18 +4,23 @@ import { useEffect } from "react";
 
 interface EventListProps {
     searchQuery?: string;
+    activeTags?: string[]; // ADDED
+    onTagClick?: (tagId: string) => void; // ADDED
 }
 
-const EventList: React.FC<EventListProps> = ({ searchQuery = "" }) => {
+const EventList: React.FC<EventListProps> = ({ searchQuery = "", activeTags = [], onTagClick }) => {
     const { events, fetchPublicEvents, isLoading } = useEventsStore();
 
     useEffect(() => {
         fetchPublicEvents();
     }, [fetchPublicEvents]);
 
-    const filteredEvents = events.filter(event =>
-        event.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredEvents = events.filter(event => {
+        const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesTags = activeTags.length === 0 || 
+            activeTags.every(tagId => event.tags?.some(et => et.tagId === tagId));
+        return matchesSearch && matchesTags;
+    });
 
     if (isLoading) {
         return (
@@ -68,6 +73,8 @@ const EventList: React.FC<EventListProps> = ({ searchQuery = "" }) => {
                     participants={event._count?.participants || 0}
                     capacity={event.capacity || 0}
                     organizerId={event.organizerId}
+                    tags={event.tags} // ADDED
+                    onTagClick={onTagClick} // ADDED
                 />
             ))}
         </div>
