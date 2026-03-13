@@ -3,12 +3,23 @@ import { Button, Card, Error, FormField, Header, InfoItem, RadioGroup, TextArea 
 import { useNavigate, useParams } from "react-router-dom";
 import { useEditEventForm } from "../../hooks/useEditEventForm";
 import { useEventsStore } from "../../stores/events.store";
+import { TagsMultiSelect } from "../../components/TagsMultiSelect/TagsMultiSelect"; // ADDED
 
 const EditEvent: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { error: storeError } = useEventsStore();
-    const { form, setForm, fieldErrors, handleSubmit, isSubmitting, isLoading } = useEditEventForm(id);
+    const { 
+        form, 
+        setForm, 
+        fieldErrors, 
+        handleSubmit, 
+        isSubmitting, 
+        isLoading,
+        selectedTagIds,
+        setSelectedTagIds,
+        tagsError
+    } = useEditEventForm(id); // CHANGED: destructuring new tags fields
 
     if (isLoading) {
         return (
@@ -39,6 +50,7 @@ const EditEvent: React.FC = () => {
                 />
 
                 {storeError && <Error message={storeError} />}
+                {tagsError && <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg text-sm">{tagsError}</div>} {/* ADDED: Tags warning banner */}
 
                 <FormField
                     id="title"
@@ -111,6 +123,19 @@ const EditEvent: React.FC = () => {
                         text={"Maximum number of participants. Leave empty or set to 0 for unlimited capacity."}
                     />
                 </div>
+
+                {/* ADDED: Tags Field */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Tags <span className="text-gray-400 font-normal">(optional, max 5)</span>
+                    </label>
+                    <TagsMultiSelect
+                        value={selectedTagIds}
+                        onChange={setSelectedTagIds}
+                        disabled={false}
+                    />
+                </div>
+
                 <RadioGroup
                     label="Visibility"
                     name="visibility"

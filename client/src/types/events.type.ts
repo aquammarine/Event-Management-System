@@ -1,3 +1,5 @@
+import type { EventTag } from './tag';
+
 export interface CreateEventDto {
     title: string;
     description: string;
@@ -18,6 +20,7 @@ export interface Event {
     location: string;
     capacity: number | null;
     isPublic: boolean;
+    tags?: EventTag[];
     organizer?: {
         id: string;
         firstName: string;

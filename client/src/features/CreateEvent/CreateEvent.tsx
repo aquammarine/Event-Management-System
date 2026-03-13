@@ -3,16 +3,26 @@ import { Button, Card, Error, FormField, Header, InfoItem, RadioGroup, TextArea 
 import { useNavigate } from "react-router-dom";
 import { useCreateEventForm } from "../../hooks/useCreateEventForm";
 import { useEventsStore } from "../../stores/events.store";
+import { TagsMultiSelect } from "../../components/TagsMultiSelect/TagsMultiSelect"; // ADDED
 
 const CreateEvent: React.FC = () => {
     const navigate = useNavigate();
     const { error: storeError } = useEventsStore();
-    const { form, setForm, fieldErrors, handleSubmit, isSubmitting } = useCreateEventForm();
+    const { 
+        form, 
+        setForm, 
+        fieldErrors, 
+        handleSubmit, 
+        isSubmitting,
+        selectedTagIds,
+        setSelectedTagIds,
+        tagsError
+    } = useCreateEventForm(); // CHANGED: using refactored hook
 
     return (
         <form
             className="flex flex-col justify-center items-center gap-6 my-6"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit} // CHANGED: back to standard handleSubmit
         >
             <div className="w-full max-w-2xl">
                 <Button type="button" variant="ghost" icon={ArrowLeft} onClick={() => navigate(-1)}>Back</Button>
@@ -26,6 +36,7 @@ const CreateEvent: React.FC = () => {
                 />
 
                 {storeError && <Error message={storeError} />}
+                {tagsError && <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg text-sm">{tagsError}</div>} {/* ADDED: Tags warning banner */}
 
                 <FormField
                     id="title"
@@ -98,6 +109,18 @@ const CreateEvent: React.FC = () => {
                         text={"Maximum number of participants. Leave empty or set to 0 for unlimited capacity."}
                     />
                 </div>
+
+                {/* ADDED: Tags Field */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Tags <span className="text-gray-400 font-normal">(optional, max 5)</span>
+                    </label>
+                    <TagsMultiSelect
+                        value={selectedTagIds}
+                        onChange={setSelectedTagIds}
+                    />
+                </div>
+
                 <RadioGroup
                     label="Visibility"
                     name="visibility"
@@ -131,4 +154,4 @@ const CreateEvent: React.FC = () => {
     );
 };
 
-export { CreateEvent };
+export { CreateEvent };
