@@ -29,7 +29,7 @@ import { CalendarEventPill } from '../../components/calendar/CalendarEventPill';
 import { useAuthStore } from '../../stores/auth.store';
 import type { Event } from '../../types/events.type';
 
-const AssistantPanel = lazy(() => import('../../components/assistant/AssistantPanel').then(module => ({ default: module.AssistantPanel })));
+const AssistantPanel = lazy(() => import('../../components/assistant/AssistantPanel/AssistantPanel').then(module => ({ default: module.AssistantPanel })));
 
 
 const locales = {
@@ -176,12 +176,11 @@ const MyEvents: React.FC = () => {
             {/* AI Assistant Floating Widget */}
             {currentUser && (
                 <div className="fixed bottom-6 right-6 z-50">
-                    <div 
-                        className={`transition-all duration-300 ease-in-out origin-bottom-right ${
-                            isAssistantOpen 
-                                ? 'w-[380px] sm:w-[440px] h-[540px] max-w-[calc(100vw-3rem)] rounded-2xl shadow-2xl border border-gray-200 bg-white opacity-100' 
+                    <div
+                        className={`transition-all duration-300 ease-in-out origin-bottom-right ${isAssistantOpen
+                                ? 'w-[380px] sm:w-[440px] h-[540px] max-w-[calc(100vw-3rem)] rounded-2xl shadow-2xl border border-gray-200 bg-white opacity-100'
                                 : 'w-14 h-14 rounded-full shadow-xl bg-blue-600 hover:bg-blue-700 hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center opacity-100'
-                        }`}
+                            }`}
                         onClick={!isAssistantOpen ? () => setIsAssistantOpen(true) : undefined}
                     >
                         {isAssistantOpen ? (

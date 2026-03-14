@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, type KeyboardEvent } from 'react';
 import { SendHorizontal } from 'lucide-react';
-import useAssistantStore from '../../stores/assistantStore';
-import type { Message } from '../../stores/assistantStore';
-import { SuggestedQuestions } from './SuggestedQuestions';
-import { Button } from '../common/Button';
+import useAssistantStore from '../../../stores/assistantStore';
+import type { Message } from '../../../stores/assistantStore';
+import { SuggestedQuestions } from '../SuggestedQuestions/SuggestedQuestions';
+import { Button } from '../../common/Button';
 
 function MessageBubble({ message }: { message: Message }) {
   const isUser = message.role === 'user';
