@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { TagsModule } from './modules/tags/tags.module';
+import { AssistantModule } from './assistant/assistant.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { TagsModule } from './modules/tags/tags.module';
     EventsModule,
     AuthModule,
     UsersModule,
-    TagsModule
+    TagsModule,
+    AssistantModule
   ],
   controllers: [AppController],
   providers: [AppService],

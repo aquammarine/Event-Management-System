@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { Button, Card, Header } from '../common/';
+import { Button, Card, Header } from '../../common';
 
 const MyEventsEmpty: React.FC = () => {
     const navigate = useNavigate();

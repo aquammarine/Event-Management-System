@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '../common/';
+import { Button } from '../../common';
 import { Views, type View } from 'react-big-calendar';
 import { format } from 'date-fns';
 

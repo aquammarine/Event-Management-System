@@ -33,8 +33,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  console.log('CORS SETUP RUNNING');
-
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
